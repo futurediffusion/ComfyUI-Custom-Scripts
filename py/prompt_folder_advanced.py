@@ -27,6 +27,12 @@ def save_state(state):
 
 _state = load_state()
 
+
+def _read_prompts(path):
+    with open(path, "r", encoding="utf-8") as f:
+        lines = f.read().splitlines()
+    return [line.strip() for line in lines if line.strip()]
+
 class PromptFolderAdvanced:
     def __init__(self):
         self.current_index = 0
@@ -70,11 +76,7 @@ class PromptFolderAdvanced:
 
         prompts = []
         for file in sorted(glob.glob(os.path.join(folder_path, "*.txt"))):
-            with open(file, "r", encoding="utf-8") as f:
-                for line in f.read().splitlines():
-                    line = line.strip()
-                    if line:
-                        prompts.append(line)
+            prompts.extend(_read_prompts(file))
 
         self.prompts = prompts
         self.total_prompts = len(prompts)

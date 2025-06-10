@@ -27,6 +27,12 @@ def save_state(state):
 
 _state = load_state()
 
+
+def _read_prompts(path):
+    with open(path, "r", encoding="utf-8") as f:
+        lines = f.read().splitlines()
+    return [line.strip() for line in lines if line.strip()]
+
 class PromptFolder:
     """Iterate prompts from .txt files in a folder"""
 
@@ -51,11 +57,7 @@ class PromptFolder:
         if state is None:
             prompts = []
             for path in sorted(glob.glob(os.path.join(folder, "*.txt"))):
-                with open(path, "r", encoding="utf-8") as f:
-                    for line in f.read().splitlines():
-                        line = line.strip()
-                        if line:
-                            prompts.append(line)
+                prompts.extend(_read_prompts(path))
             if order == "random":
                 random.shuffle(prompts)
             start = max(0, min(index, len(prompts)))
