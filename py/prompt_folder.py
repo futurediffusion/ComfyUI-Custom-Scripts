@@ -1,8 +1,31 @@
 import os
 import glob
 import random
+import json
 
-_state = {}
+USER_DIR = os.path.abspath(os.path.join(__file__, "../../user"))
+STATE_FILE = os.path.join(USER_DIR, "prompt_folder_state.json")
+
+def load_state():
+    if os.path.exists(STATE_FILE):
+        try:
+            with open(STATE_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
+
+
+def save_state(state):
+    try:
+        os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
+        with open(STATE_FILE, "w", encoding="utf-8") as f:
+            json.dump(state, f)
+    except Exception:
+        pass
+
+
+_state = load_state()
 
 class PromptFolder:
     """Iterate prompts from .txt files in a folder"""
@@ -13,6 +36,7 @@ class PromptFolder:
             "required": {
                 "folder": ("STRING", {"default": "prompts"}),
                 "order": (["ordered", "random"], {}),
+                "index": ("INT", {"default": 0, "min": 0}),
                 "reset": ("BOOLEAN", {"default": False, "label_on": "reset"}),
             }
         }
@@ -21,7 +45,7 @@ class PromptFolder:
     FUNCTION = "get_prompt"
     CATEGORY = "utils"
 
-    def get_prompt(self, folder, order, reset):
+    def get_prompt(self, folder, order, index, reset):
         folder = os.path.abspath(folder)
         state = _state.get(folder)
         if state is None:
@@ -34,11 +58,13 @@ class PromptFolder:
                             prompts.append(line)
             if order == "random":
                 random.shuffle(prompts)
-            state = {"prompts": prompts, "index": 0, "order": order}
+            start = max(0, min(index, len(prompts)))
+            state = {"prompts": prompts, "index": start, "order": order}
             _state[folder] = state
         else:
             if reset:
-                state["index"] = 0
+                start = max(0, min(index, len(state["prompts"])))
+                state["index"] = start
                 if order == "random":
                     random.shuffle(state["prompts"])
             state["order"] = order
@@ -53,6 +79,7 @@ class PromptFolder:
 
         prompt = state["prompts"][state["index"]]
         state["index"] += 1
+        save_state(_state)
         return (prompt,)
 
 
