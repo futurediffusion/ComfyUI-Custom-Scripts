@@ -1,13 +1,13 @@
 [project]
-name = "comfyui-custom-scripts"
-description = "Enhancements & experiments for ComfyUI, mostly focusing on UI features"
-version = "1.2.5"
+name = "prompt-folder-nodes"
+description = "Prompt Folder nodes for ComfyUI"
+version = "1.0.0"
 license = { file = "LICENSE" }
 
 [project.urls]
-Repository = "https://github.com/pythongosssss/ComfyUI-Custom-Scripts"
+Repository = "https://example.com/prompt-folder-nodes"
 
 [tool.comfy]
-PublisherId = "pythongosssss"
-DisplayName = "ComfyUI-Custom-Scripts"
+PublisherId = "prompt-folder-nodes"
+DisplayName = "Prompt Folder Nodes"
 Icon = ""

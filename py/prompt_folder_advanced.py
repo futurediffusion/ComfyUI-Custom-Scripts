@@ -199,10 +199,10 @@ class PromptFolderAdvanced:
         return (prompt, idx + 1, self.total_prompts, remaining)
 
 NODE_CLASS_MAPPINGS = {
-    "PromptFolderAdvanced|pysssss": PromptFolderAdvanced,
+    "PromptFolderAdvanced": PromptFolderAdvanced,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "PromptFolderAdvanced|pysssss": "Prompt Folder Advanced 🐍",
+    "PromptFolderAdvanced": "Prompt Folder Advanced",
 }
 
