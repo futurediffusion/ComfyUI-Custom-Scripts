@@ -85,5 +85,5 @@ class PromptFolder:
         return (prompt,)
 
 
-NODE_CLASS_MAPPINGS = {"PromptFolder|pysssss": PromptFolder}
-NODE_DISPLAY_NAME_MAPPINGS = {"PromptFolder|pysssss": "Prompt Folder 🐍"}
+NODE_CLASS_MAPPINGS = {"PromptFolder": PromptFolder}
+NODE_DISPLAY_NAME_MAPPINGS = {"PromptFolder": "Prompt Folder"}
