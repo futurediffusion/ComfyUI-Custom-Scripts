@@ -1,6 +1,31 @@
 import os
 import glob
 import random
+import json
+
+USER_DIR = os.path.abspath(os.path.join(__file__, "../../user"))
+STATE_FILE = os.path.join(USER_DIR, "prompt_folder_advanced_state.json")
+
+def load_state():
+    if os.path.exists(STATE_FILE):
+        try:
+            with open(STATE_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
+
+
+def save_state(state):
+    try:
+        os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
+        with open(STATE_FILE, "w", encoding="utf-8") as f:
+            json.dump(state, f)
+    except Exception:
+        pass
+
+
+_state = load_state()
 
 class PromptFolderAdvanced:
     def __init__(self):
@@ -112,12 +137,24 @@ class PromptFolderAdvanced:
             return self.current_index + 1
 
     def process_folder(self, folder_path, traversal_mode="forward", skip_lines=0, reset_counter=False, reload_folder=False, hold_current_text=False, starting_index=None):
+        folder_path = os.path.abspath(folder_path)
+        state = _state.get(folder_path)
+
         if self.should_reload_folder(folder_path, reload_folder):
             self.load_folder(folder_path, traversal_mode)
-            self.current_index = starting_index if starting_index is not None else 0
-            self.last_traversal_mode = traversal_mode
-            self.last_non_held_index = None
-            self.held_index = None
+            if state and not reset_counter and starting_index is None:
+                self.current_index = state.get("current_index", 0)
+                self.random_indices = set(state.get("random_indices", []))
+                self.last_traversal_mode = state.get("last_traversal_mode", traversal_mode)
+                self.last_non_held_index = state.get("last_non_held_index")
+                self.held_index = state.get("held_index")
+            else:
+                self.current_index = starting_index if starting_index is not None else 0
+                self.last_traversal_mode = traversal_mode
+                if traversal_mode == "random":
+                    self.random_indices = set(range(self.total_prompts))
+                self.last_non_held_index = None
+                self.held_index = None
         elif reset_counter:
             self.current_index = starting_index if starting_index is not None else 0
             self.last_traversal_mode = traversal_mode
@@ -149,6 +186,14 @@ class PromptFolderAdvanced:
 
         prompt = self.prompts[idx]
         remaining = self.get_remaining(traversal_mode)
+        _state[folder_path] = {
+            "current_index": self.current_index,
+            "random_indices": list(self.random_indices),
+            "last_traversal_mode": self.last_traversal_mode,
+            "last_non_held_index": self.last_non_held_index,
+            "held_index": self.held_index,
+        }
+        save_state(_state)
         return (prompt, idx + 1, self.total_prompts, remaining)
 
 NODE_CLASS_MAPPINGS = {
