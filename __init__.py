@@ -21,5 +21,18 @@ if init():
             if hasattr(module, "NODE_DISPLAY_NAME_MAPPINGS") and getattr(module, "NODE_DISPLAY_NAME_MAPPINGS") is not None:
                 NODE_DISPLAY_NAME_MAPPINGS.update(module.NODE_DISPLAY_NAME_MAPPINGS)
 
+    # Load additional custom nodes shipped in the root directory, if present
+    root = get_ext_dir()
+    custom_file = os.path.join(root, "WWAACustomNodes.py")
+    if os.path.exists(custom_file):
+        spec = importlib.util.spec_from_file_location("WWAACustomNodes", custom_file)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["WWAACustomNodes"] = module
+        spec.loader.exec_module(module)
+        if hasattr(module, "WWAA_CLASS_MAPPINGS"):
+            NODE_CLASS_MAPPINGS.update(module.WWAA_CLASS_MAPPINGS)
+        if hasattr(module, "WWAA_DISPLAY_NAME_MAPPINGS"):
+            NODE_DISPLAY_NAME_MAPPINGS.update(module.WWAA_DISPLAY_NAME_MAPPINGS)
+
 WEB_DIRECTORY = "./web"
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS", "WEB_DIRECTORY"]
